@@ -10,7 +10,8 @@ import {
 import { Dialog } from '@microsoft/sp-dialog';
 import { CsvDataService } from './ConvertToCsv';
 import * as strings from 'TestCommandSetStrings';
-
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 /**
  * If your command set uses the ClientSideComponentProperties JSON input,
  * it will be deserialized into the BaseExtension.properties object.
@@ -76,6 +77,33 @@ export default class TestCommandSet extends BaseListViewCommandSet<ITestCommandS
       console.log("error: "+error);
     }
   }
+
+  async convertToXslx(){
+    const json = await this.getList().then(res => {return res.Row});
+    console.log(json[0]);
+    console.log(json);
+    const sheet = XLSX.utils.json_to_sheet(json);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook,sheet);
+    const link = document.createElement('a');
+    const wbout = XLSX.write(workbook, {bookType:'xlsx',  type: 'binary'});
+    saveAs(new Blob([this.s2ab(wbout)],{type:"application/octet-stream"}), 'test.xlsx');
+    // const url = URL.createObjectURL(buffer);
+    // link.download = 'filename.xlsx';
+    // link.href = url;
+    // link.style.visibility = 'hidden';
+    // document.body.appendChild(link);
+    // link.click();
+    // document.body.removeChild(link);
+  }
+
+  s2ab(s) {
+    var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+    var view = new Uint8Array(buf);  //create uint8array as viewer
+    for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+    return buf;
+}
+
   @override
   public onExecute(event: IListViewCommandSetExecuteEventParameters): void {
 
@@ -87,7 +115,7 @@ export default class TestCommandSet extends BaseListViewCommandSet<ITestCommandS
       case 'COMMAND_2':
         this.getUrl();
         this.getFiltersFromUrl();
-        this.convertToCsv();
+        this.convertToXslx();
       default:
         throw new Error('Unknown command');
     }

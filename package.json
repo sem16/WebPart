@@ -16,7 +16,9 @@
     "@microsoft/sp-core-library": "1.11.0",
     "@microsoft/sp-dialog": "1.11.0",
     "@microsoft/sp-listview-extensibility": "1.11.0",
-    "@pnp/sp-commonjs": "^2.0.10"
+    "@pnp/sp-commonjs": "^2.0.10",
+    "file-saver": "^2.0.2",
+    "xlsx": "^0.16.7"
   },
   "devDependencies": {
     "@microsoft/sp-build-web": "1.11.0",
