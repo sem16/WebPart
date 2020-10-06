@@ -23,9 +23,11 @@ export interface ITestCommandSetProperties {
   sampleTextTwo: string;
 }
 
+
 const LOG_SOURCE: string = 'TestCommandSet';
 
 export default class TestCommandSet extends BaseListViewCommandSet<ITestCommandSetProperties> {
+  private excluse = ["Attachments","ContentTypeId","Created_x0020_Date.ifnew","FSObjType","FileLeafRef","FileRef","File_x0020_Type","File_x0020_Type.mapapp","FolderChildCount","HTML_x0020_File_x0020_Type.File_x0020_Type.mapcon","HTML_x0020_File_x0020_Type.File_x0020_Type.mapico","ID","ItemChildCount","PermMask","SMTotalSize","UniqueId","owshiddenversion","_CommentFlags"];
 
   @override
   public onInit(): Promise<void> {
@@ -81,6 +83,19 @@ export default class TestCommandSet extends BaseListViewCommandSet<ITestCommandS
   async convertToXslx(){
     const json = await this.getList().then(res => {return res.Row});
     console.log(json[0]);
+    console.log(json);
+    
+    for(let i=0; i < json.length;i++){
+    
+    this.excluse.forEach(element => {
+      try{
+      delete json[i][element]
+      }
+      catch(e){
+        console.log(e);
+      }
+    });
+  }
     console.log(json);
     const sheet = XLSX.utils.json_to_sheet(json);
     const workbook = XLSX.utils.book_new();
