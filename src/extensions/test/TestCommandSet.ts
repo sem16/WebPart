@@ -32,17 +32,24 @@ export default class TestCommandSet extends BaseListViewCommandSet<ITestCommandS
   @override
   public onInit(): Promise<void> {
     Log.info(LOG_SOURCE, 'Initialized TestCommandSet');
+    //this.interceptRequest();
+    console.log("aaaa");
     return Promise.resolve();
   }
 
   @override
-  public onListViewUpdated(event: IListViewCommandSetListViewUpdatedParameters): void {
+  public onListViewUpdated(event: IListViewCommandSetListViewUpdatedParameters,): void {
     const compareOneCommand: Command = this.tryGetCommand('COMMAND_1');
     if (compareOneCommand) {
-      // This command should be hidden unless exactly one row is selected.
       compareOneCommand.visible = event.selectedRows.length === 1;
     }
   }
+
+  test(){
+    const text = document.getElementsByClassName('ms-TooltipHost')[2].textContent
+    sp.web.lists.getByTitle(this.context.pageContext.web.absoluteUrl).items.filter(`Sito Eq ${text}`).get();
+  }
+
   getUrl(){
     const str = window.location.href;
     const res = str.substring(str.indexOf("sites") ,str.indexOf("/AllItems")).split("/");
@@ -53,7 +60,7 @@ export default class TestCommandSet extends BaseListViewCommandSet<ITestCommandS
   }
   getFiltersFromUrl(){
     const str = window.location.href;
-    const res = str.substring(str.indexOf("useFiltersInViewXml=1&") + 22 ,str.indexOf("FilterOp1=In") +12);
+    const res = str.substring(str.indexOf("useFiltersInViewXml=1&") + 22 ,str.indexOf("=In") +3);
       console.log(res)
     return res;
   }
@@ -84,9 +91,9 @@ export default class TestCommandSet extends BaseListViewCommandSet<ITestCommandS
     const json = await this.getList().then(res => {return res.Row});
     console.log(json[0]);
     console.log(json);
-    
+
     for(let i=0; i < json.length;i++){
-    
+
     this.excluse.forEach(element => {
       try{
       delete json[i][element]
@@ -103,13 +110,7 @@ export default class TestCommandSet extends BaseListViewCommandSet<ITestCommandS
     const link = document.createElement('a');
     const wbout = XLSX.write(workbook, {bookType:'xlsx',  type: 'binary'});
     saveAs(new Blob([this.s2ab(wbout)],{type:"application/octet-stream"}), 'test.xlsx');
-    // const url = URL.createObjectURL(buffer);
-    // link.download = 'filename.xlsx';
-    // link.href = url;
-    // link.style.visibility = 'hidden';
-    // document.body.appendChild(link);
-    // link.click();
-    // document.body.removeChild(link);
+
   }
 
   s2ab(s) {
