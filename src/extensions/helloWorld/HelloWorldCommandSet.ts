@@ -8,7 +8,7 @@ import {
   IListViewCommandSetExecuteEventParameters
 } from '@microsoft/sp-listview-extensibility';
 import { Dialog } from '@microsoft/sp-dialog';
-
+import {sp} from '@pnp/pnpjs';
 import * as strings from 'HelloWorldCommandSetStrings';
 
 /**
@@ -35,18 +35,19 @@ export default class HelloWorldCommandSet extends BaseListViewCommandSet<IHelloW
   @override
   public onListViewUpdated(event: IListViewCommandSetListViewUpdatedParameters): void {
     this.data = [];
-    const compareOneCommand: Command = this.tryGetCommand('COMMAND_1');
-    if (compareOneCommand) {
-      // This command should be hidden unless exactly one row is selected.
-      compareOneCommand.visible = event.selectedRows.length === 1;
-    }
     console.log(event.selectedRows);
+    console.log(this.context.pageContext.list.serverRelativeUrl);
     event.selectedRows.forEach((row,i) => {
       let values: any = {};
+      sp.web.lists.get
       row.fields.forEach((field) => {
         let keyName = field.displayName;
         values[keyName]  = row.getValue(field)
       });
+      try{
+      values['Nome società'] = row.getValueByName('Nome_societa_quick');
+      }
+      catch{}
       this.data[i] = values;
     });
     console.log(this.data);
@@ -56,9 +57,6 @@ export default class HelloWorldCommandSet extends BaseListViewCommandSet<IHelloW
   @override
   public onExecute(event: IListViewCommandSetExecuteEventParameters): void {
     switch (event.itemId) {
-      case 'COMMAND_1':
-        Dialog.alert(`${this.properties.sampleTextOne}`);
-        break;
       case 'COMMAND_2':
         ConvertToXlsx.convertToXslx(this.data);
         break;
