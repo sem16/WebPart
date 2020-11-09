@@ -3,7 +3,7 @@ import { saveAs } from "file-saver";
 import * as XLSX from 'xlsx';
 
 export class ConvertToXlsx {
-  public static convertToXslx(list: any) {
+  public static convertToXslx(list: any,listName: String) {
     const json = list;
     console.log(json)
     let cols;
@@ -18,7 +18,7 @@ export class ConvertToXlsx {
     const wbout = XLSX.write(workbook, { bookType: "xlsx", type: "binary" });
     saveAs(
       new Blob([this.s2ab(wbout)], { type: "application/octet-stream" }),
-      "test.xlsx"
+      "Excel_"+listName+".xlsx"
     );
   }
 
