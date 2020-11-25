@@ -10,6 +10,9 @@ import {
 import { Dialog } from '@microsoft/sp-dialog';
 import {sp} from '@pnp/pnpjs';
 import * as strings from 'HelloWorldCommandSetStrings';
+import * as React from 'react';
+import {Message} from './msg';
+import * as ReactDOM from 'react-dom';
 
 /**
  * If your command set uses the ClientSideComponentProperties JSON input,
@@ -26,6 +29,8 @@ const LOG_SOURCE: string = 'HelloWorldCommandSet';
 
 export default class HelloWorldCommandSet extends BaseListViewCommandSet<IHelloWorldCommandSetProperties> {
   data: {}[];
+  dialogPlaceHolder = document.body.appendChild(document.createElement("div"));
+
   @override
   public onInit(): Promise<void> {
     Log.info(LOG_SOURCE, 'Initialized HelloWorldCommandSet');
@@ -43,14 +48,23 @@ export default class HelloWorldCommandSet extends BaseListViewCommandSet<IHelloW
     console.log(this.context.dynamicDataProvider.getAvailableSources().map(el => el.metadata.instanceId))
     event.selectedRows.forEach((row,i) => {
       let values: any = {};
+
+      try{
+      values['Nome società'] = row.getValueByName('Nome_societa_quick');
+      }
+
+      catch{}
       row.fields.forEach((field) => {
         let keyName = field.displayName;
         values[keyName]  = row.getValue(field)
       });
-      try{
-      values['Nome società'] = row.getValueByName('Nome_societa_quick');
+      if(values['Nome società'] === undefined){
+        delete values['Nome società'];
       }
-      catch{}
+      try{
+        delete values['Attachments'];
+        delete values['Allegati']
+      }catch{}
       this.data[i] = values;
     });
     console.log(this.data);
@@ -72,6 +86,24 @@ export default class HelloWorldCommandSet extends BaseListViewCommandSet<IHelloW
            listName = listName.replace(".aspx","");
           }​​​​
         }​​​​
+
+        if(event.selectedRows.length === 0){
+          try{
+            ReactDOM.unmountComponentAtNode(this.dialogPlaceHolder);
+          }catch{}
+
+          const element: React.ReactElement<{}> = React.createElement(
+            Message,{
+              show: true
+            }
+          );
+
+          ReactDOM.render(element,this.dialogPlaceHolder);
+        }else{
+          try{
+            ReactDOM.unmountComponentAtNode(this.dialogPlaceHolder);
+          }catch{}
+        }
         // const listName = this.context.dynamicDataProvider.getAvailableSources()[1].metadata.title;
         // sp.web.lists.getByTitle(listName).get().then(res => console.log(res));
         ConvertToXlsx.convertToXslx(this.data,listName);
